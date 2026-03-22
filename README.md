@@ -271,7 +271,7 @@ http://127.0.0.1:8000/
 Use:
 - Train start: 2014-01-01
 - Trade start: 2015-01-01
-- Trade end: 2024-12-24
+- Trade end: 2025-12-24
 
 ### 8. Run tests
 ```bat
