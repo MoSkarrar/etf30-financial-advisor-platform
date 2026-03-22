@@ -1,0 +1,149 @@
+{% extends 'trader/base.html' %}
+{% load static %}
+
+{% block content %}
+<div
+  id="narration-page"
+  class="container"
+  data-session-id="{{ session_id }}"
+  data-ws-path="/ws/narration/{{ session_id }}/"
+  data-latest-run-id="{{ latest_run_id }}"
+>
+  <div class="row mb-3">
+    <div class="col-12">
+      <h2 class="mb-1">ETF30 advisor console</h2>
+      <p class="text-muted mb-0">Session <strong>{{ session_id }}</strong> · Market <strong>{{ market }}</strong></p>
+      {% if error %}
+      <div class="alert alert-warning mt-3 mb-0">{{ error }}</div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-3">
+      <div class="card mb-3">
+        <div class="card-header py-2"><strong>Runs</strong></div>
+        <div class="card-body">
+          <label for="run-select">Available runs</label>
+          <select id="run-select" class="form-control mb-2">
+            <option value="">Select a run</option>
+            {% for run_id in runs %}
+            <option value="{{ run_id }}">{{ run_id }}</option>
+            {% endfor %}
+          </select>
+          <button id="load-run-btn" class="btn btn-primary btn-sm">Load run</button>
+        </div>
+      </div>
+
+      <div class="card mb-3">
+        <div class="card-header py-2"><strong>Latest advisory summary</strong></div>
+        <div id="latest-summary" class="card-body" style="white-space:pre-wrap;">{{ latest_summary|default:"No summary yet." }}</div>
+      </div>
+
+      <div class="card mb-3">
+        <div class="card-header py-2"><strong>Engine / policy</strong></div>
+        <pre id="engine-policy-panel" class="card-body mb-0" style="max-height:14rem; overflow:auto; white-space:pre-wrap;">Engine and policy details will appear here.</pre>
+      </div>
+
+      <div class="card">
+        <div class="card-header py-2"><strong>Session log</strong></div>
+        <pre id="narration-terminal" class="card-body mb-0" style="height:18rem; overflow:auto; white-space:pre-wrap; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;"></pre>
+      </div>
+    </div>
+
+    <div class="col-lg-9">
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <div class="card h-100">
+            <div class="card-header py-2"><strong>Recommended weights</strong></div>
+            <div class="card-body p-0">
+              <div style="max-height:16rem; overflow:auto;">
+                <table class="table table-sm mb-0">
+                  <thead>
+                    <tr><th>Ticker</th><th class="text-right">Target</th><th class="text-right">Δ</th></tr>
+                  </thead>
+                  <tbody id="allocation-table-body">
+                    <tr><td colspan="3" class="text-muted p-3">Load a run to view weights.</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6 mb-3">
+          <div class="card h-100">
+            <div class="card-header py-2"><strong>Benchmark comparison</strong></div>
+            <div id="benchmark-card" class="card-body text-muted">Load a run to compare against the benchmark.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <div class="card h-100">
+            <div class="card-header py-2"><strong>Risk snapshot</strong></div>
+            <div id="risk-card" class="card-body text-muted">Risk metrics will appear here.</div>
+          </div>
+        </div>
+        <div class="col-md-6 mb-3">
+          <div class="card h-100">
+            <div class="card-header py-2"><strong>Scenario / stricter policy</strong></div>
+            <div id="scenario-card" class="card-body text-muted">Load a run to inspect stricter-policy impact.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <div class="card h-100">
+            <div class="card-header py-2"><strong>Rule / policy summary</strong></div>
+            <pre id="rule-summary-card" class="card-body mb-0" style="max-height:14rem; overflow:auto; white-space:pre-wrap;">No rule or policy summary available yet.</pre>
+          </div>
+        </div>
+        <div class="col-md-6 mb-3">
+          <div class="card h-100">
+            <div class="card-header py-2"><strong>Explanation lab</strong></div>
+            <div id="explanation-lab-card" class="card-body text-muted">No explanation audit stored for this run.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mb-3">
+        <div class="card-header py-2"><strong>Explanation summary</strong></div>
+        <pre id="explain-summary" class="card-body mb-0" style="max-height:12rem; overflow:auto; white-space:pre-wrap; background:#0b1220; color:#e5e7eb;"></pre>
+      </div>
+
+      <div class="card mb-3">
+        <div class="card-header py-2"><strong>Structured explanation bundle</strong></div>
+        <pre id="explanation-bundle-card" class="card-body mb-0" style="max-height:12rem; overflow:auto; white-space:pre-wrap;">No structured explanation bundle stored for this run.</pre>
+      </div>
+
+      <div class="card mb-3">
+        <div class="card-header py-2 d-flex justify-content-between align-items-center">
+          <strong>Advisor chat</strong>
+          <div class="d-flex flex-wrap">
+            <button class="btn btn-sm btn-outline-secondary quick-chat mr-1 mb-1" data-event="compare_benchmark" data-message="How does this allocation compare to the benchmark?">Benchmark</button>
+            <button class="btn btn-sm btn-outline-secondary quick-chat mr-1 mb-1" data-event="run_scenario" data-message="What if the client is more conservative?">More conservative</button>
+            <button class="btn btn-sm btn-outline-secondary quick-chat mr-1 mb-1" data-event="run_scenario" data-message="What if max weight is 8%?">8% max weight</button>
+            <button class="btn btn-sm btn-outline-secondary quick-chat mr-1 mb-1" data-event="run_scenario" data-message="What if we keep 10% cash?">10% cash</button>
+            <button class="btn btn-sm btn-outline-secondary quick-chat mr-1 mb-1" data-event="ask_technical_xai" data-message="Give the technical XAI explanation for this run.">Technical XAI</button>
+            <button class="btn btn-sm btn-outline-secondary quick-chat mr-1 mb-1" data-event="compare_explainers" data-message="Compare SHAP, LIME, and rule-based explanations for this run.">Compare explainers</button>
+            <button class="btn btn-sm btn-outline-secondary quick-chat mb-1" data-event="show_risk_flags" data-message="Summarize the main risk flags and policy issues for this run.">Risk flags</button>
+          </div>
+        </div>
+        <div id="chat-messages" class="card-body" style="height:20rem; overflow:auto; background:#0b1220; color:#e5e7eb;"></div>
+      </div>
+
+      <form id="chat-form" class="d-flex align-items-start">
+        <input id="chat-input" type="text" class="form-control" placeholder="Ask why this allocation, what changed, how risky it is, compare explainers, or request technical XAI..." autocomplete="off" />
+        <button type="submit" class="btn btn-primary ml-2">Send</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock content %}
+
+{% block script %}
+<script src="{% static 'trader/js/narration_page.js' %}"></script>
+{% endblock script %}

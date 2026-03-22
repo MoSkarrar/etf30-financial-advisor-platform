@@ -1,0 +1,260 @@
+{% extends 'trader/base.html' %}
+{% load static %}
+
+{% block content %}
+<div
+  id="trading-page"
+  class="container"
+  data-ws-path="/ws/execute-model/"
+  data-narration-base="/stocks/narration/session/"
+>
+  <div class="row mb-4">
+    <div class="col-12">
+      <h2 class="mb-1">{{ app_title }}</h2>
+      <p class="text-muted mb-0">{{ app_subtitle }}</p>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-7">
+      <form id="trading-form" class="card shadow-sm mb-4">
+        <div class="card-header py-3">
+          <strong>Advisor intake</strong>
+          <small class="text-muted ml-2">Set the mandate before launching the ETF30 session.</small>
+        </div>
+
+        <div class="card-body">
+          <div class="form-row">
+            <div class="form-group col-md-4">
+              <label for="initial_amount">Initial capital</label>
+              <input class="form-control" type="number" id="initial_amount" name="initial_amount" value="{{ default_initial_amount }}" min="1000" step="1000" />
+            </div>
+            <div class="form-group col-md-4">
+              <label for="benchmark_choice">Benchmark</label>
+              <select class="form-control" id="benchmark_choice" name="benchmark_choice">
+                {% for value,label in benchmark_choices %}
+                <option value="{{ value }}" {% if value == benchmark_default %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="form-group col-md-4">
+              <label for="engine">Engine</label>
+              <select class="form-control" id="engine" name="engine">
+                <option value="legacy_rl" selected>Legacy RL</option>
+                <option value="finrl">FinRL</option>
+              </select>
+              <small class="text-muted">FinRL will fall back if disabled on the backend.</small>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-md-4">
+              <label for="date_train">Train start</label>
+              <input id="date_train" name="date_train" type="date" class="form-control" value="{{ default_train_start }}" />
+            </div>
+            <div class="form-group col-md-4">
+              <label for="date_trade_1">Trade start</label>
+              <input id="date_trade_1" name="date_trade_1" type="date" class="form-control" value="{{ default_trade_start }}" />
+            </div>
+            <div class="form-group col-md-4">
+              <label for="date_trade_2">Trade end</label>
+              <input id="date_trade_2" name="date_trade_2" type="date" class="form-control" value="{{ default_trade_end }}" />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label for="risk_mode">Risk mode</label>
+              <select class="form-control" id="risk_mode" name="risk_mode">
+                <option value="standard" selected>Standard</option>
+                <option value="conservative">Conservative</option>
+                <option value="strict">Strict</option>
+              </select>
+            </div>
+            <div class="form-group col-md-6">
+              <label for="explanation_depth">Explanation depth</label>
+              <select class="form-control" id="explanation_depth" name="explanation_depth">
+                <option value="compact" selected>Compact</option>
+                <option value="standard">Standard</option>
+                <option value="technical">Technical</option>
+              </select>
+            </div>
+          </div>
+
+          <hr />
+          <h5 class="mb-3">Client profile</h5>
+          <div class="form-row">
+            <div class="form-group col-md-4">
+              <label for="profile_name">Risk profile</label>
+              <select class="form-control" id="profile_name" name="profile_name">
+                {% for value,label in risk_profiles %}
+                <option value="{{ value }}" {% if value == investor_profile_defaults.profile_name %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="form-group col-md-4">
+              <label for="target_style">Target style</label>
+              <select class="form-control" id="target_style" name="target_style">
+                <option value="defensive">Defensive</option>
+                <option value="balanced" selected>Balanced</option>
+                <option value="growth">Growth</option>
+              </select>
+            </div>
+            <div class="form-group col-md-4">
+              <label for="advisor_mode">Mode</label>
+              <select class="form-control" id="advisor_mode" name="advisor_mode">
+                {% for value,label in advisor_modes %}
+                <option value="{{ value }}">{{ label }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-md-3">
+              <label for="risk_tolerance">Risk tolerance</label>
+              <input class="form-control" type="number" step="0.01" min="0" max="1" id="risk_tolerance" value="{{ investor_profile_defaults.risk_tolerance }}" />
+            </div>
+            <div class="form-group col-md-3">
+              <label for="target_volatility">Target volatility</label>
+              <input class="form-control" type="number" step="0.01" min="0" max="1" id="target_volatility" value="{{ investor_profile_defaults.target_volatility }}" />
+            </div>
+            <div class="form-group col-md-3">
+              <label for="max_drawdown_preference">Max drawdown</label>
+              <input class="form-control" type="number" step="0.01" min="0" max="1" id="max_drawdown_preference" value="{{ investor_profile_defaults.max_drawdown_preference }}" />
+            </div>
+            <div class="form-group col-md-3">
+              <label for="turnover_aversion">Turnover aversion</label>
+              <input class="form-control" type="number" step="0.01" min="0" max="1" id="turnover_aversion" value="{{ investor_profile_defaults.turnover_aversion }}" />
+            </div>
+          </div>
+
+          <hr />
+          <h5 class="mb-3">Policy controls</h5>
+          <div class="form-row">
+            <div class="form-group col-md-3">
+              <label for="max_single_position_cap">Max single-position cap</label>
+              <input class="form-control" type="number" step="0.01" min="0.01" max="1" id="max_single_position_cap" value="{{ policy_defaults.max_single_position_cap }}" />
+            </div>
+            <div class="form-group col-md-3">
+              <label for="min_cash_weight">Minimum cash rule</label>
+              <input class="form-control" type="number" step="0.01" min="0" max="1" id="min_cash_weight" value="{{ policy_defaults.min_cash_weight }}" />
+            </div>
+            <div class="form-group col-md-3">
+              <label for="rebalance_cadence_days">Rebalance cadence (days)</label>
+              <input class="form-control" type="number" step="1" min="5" max="126" id="rebalance_cadence_days" value="{{ policy_defaults.rebalance_cadence_days }}" />
+            </div>
+            <div class="form-group col-md-3">
+              <label for="turnover_budget">Turnover budget</label>
+              <input class="form-control" type="number" step="0.01" min="0" max="1" id="turnover_budget" value="{{ policy_defaults.turnover_budget }}" />
+            </div>
+          </div>
+
+          <div class="form-row align-items-center">
+            <div class="col-md-4 mb-2">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="scenario_mode" />
+                <label class="form-check-label" for="scenario_mode">Enable scenario commentary</label>
+              </div>
+            </div>
+            <div class="col-md-4 mb-2">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="allow_cash_sleeve" checked />
+                <label class="form-check-label" for="allow_cash_sleeve">Allow cash sleeve</label>
+              </div>
+            </div>
+            <div class="col-md-4 mb-2">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="long_only" checked />
+                <label class="form-check-label" for="long_only">Long-only policy</label>
+              </div>
+            </div>
+          </div>
+
+          <fieldset class="form-group mt-3">
+            <legend class="col-form-label pt-0">Training robustness</legend>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="robustness_option" id="robustness_1" value="robustness_1" />
+              <label class="form-check-label" for="robustness_1">Weak — faster exploratory run</label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="robustness_option" id="robustness_2" value="robustness_2" checked />
+              <label class="form-check-label" for="robustness_2">Normal — balanced runtime</label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="robustness_option" id="robustness_3" value="robustness_3" />
+              <label class="form-check-label" for="robustness_3">Strong — heavier validation</label>
+            </div>
+          </fieldset>
+        </div>
+
+        <div class="card-footer bg-white">
+          <button type="submit" class="btn btn-primary">Launch ETF30 advisory session</button>
+          <button type="button" id="btnClear" class="btn btn-outline-secondary ml-2">Clear panels</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="col-lg-5">
+      <div class="card mb-3">
+        <div class="card-header py-2"><strong>Run controls</strong></div>
+        <div class="card-body">
+          <div id="run_open_state" class="text-muted mb-2">The advisor console link will appear after a successful run.</div>
+          <div class="d-flex flex-wrap gap-2">
+            <button type="button" id="btnOpenConsole" class="btn btn-sm btn-success mr-2 mb-2" disabled>Open advisor console</button>
+            <a id="linkOpenConsoleNewTab" class="btn btn-sm btn-outline-success mb-2 disabled" href="#" target="_blank" rel="noopener">Open in new tab</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mb-3">
+        <div class="card-header py-2"><strong>Execution log</strong></div>
+        <pre id="the_result" class="card-body mb-0" style="height:12rem; overflow:auto; white-space:pre-wrap; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;"></pre>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <div class="card h-100">
+            <div class="card-header py-2"><strong>Engine status</strong></div>
+            <div id="engine_status_card" class="card-body small text-muted">Waiting for engine selection…</div>
+          </div>
+        </div>
+        <div class="col-md-6 mb-3">
+          <div class="card h-100">
+            <div class="card-header py-2"><strong>Explain status</strong></div>
+            <div id="explain_status_card" class="card-body small text-muted">Waiting for explanation phase…</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mb-3">
+        <div class="card-header py-2"><strong>Policy / rule summary</strong></div>
+        <div id="rule_summary_card" class="card-body small text-muted">No policy or rule summary yet.</div>
+      </div>
+
+      <div class="card mb-3">
+        <div class="card-header py-2"><strong>Explanation summary</strong></div>
+        <pre id="the_explain" class="card-body mb-0" style="height:10rem; overflow:auto; white-space:pre-wrap; background:#0b1220; color:#e5e7eb;">Waiting for explanation...</pre>
+      </div>
+
+      <div class="card mb-3">
+        <div class="card-header py-2"><strong>Advisor summary</strong></div>
+        <div id="the_narration" class="card-body" style="min-height:7rem; white-space:pre-wrap;">Waiting for advisor summary...</div>
+      </div>
+
+      <div class="card">
+        <div class="card-header py-2"><strong>Latest run snapshot</strong></div>
+        <div class="card-body">
+          <div id="allocation_preview" class="mb-3 text-muted">Allocation preview will appear here.</div>
+          <div id="benchmark_preview" class="mb-3 text-muted">Benchmark comparison will appear here.</div>
+          <div id="risk_preview" class="text-muted">Risk snapshot will appear here.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}
+
+{% block script %}
+<script src="{% static 'trader/js/trading_page.js' %}"></script>
+{% endblock script %}
