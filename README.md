@@ -227,10 +227,6 @@ etf30-financial-advisor-platform/
             ├── narration_session.html
             └── register.html```
 
-> Adjust paths if your local checkout uses a slightly different root layout.
-
----
-
 ## Results Directory Layout
 
 The current project saves advisory outputs into structured result folders such as:
