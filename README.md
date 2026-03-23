@@ -262,9 +262,6 @@ Typical stored outputs include:
 Use **Anaconda Prompt**.
 
 ### 2. Go to the project folder
-```bat
-cd C:\Users\RAUL7\Downloads\fab224\fab224
-```
 
 ### 3. Create and activate the environment
 ```bat
