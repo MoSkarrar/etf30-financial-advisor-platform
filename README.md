@@ -107,59 +107,125 @@ The second page can answer grounded follow-up questions from persisted run artif
 
 ```text
 .
+etf30-financial-advisor-platform/
+├── .gitignore
 ├── README.md
 ├── manage.py
-├── trader/
-│   └── drl_stock_trader/
-│       ├── main.py
-│       ├── preprocess.py
-│       ├── algorithms.py
-│       ├── artifact_store.py
-│       ├── trading_service.py
-│       ├── narration_service.py
-│       ├── narration_chat_service.py
-│       ├── narration_context.py
-│       ├── narration_xai_adapter.py
-│       ├── session_models.py
-│       ├── config/
-│       │   ├── app_config.py
-│       │   └── paths.py
-│       ├── pipeline/
-│       │   ├── data_stage.py
-│       │   ├── train_stage.py
-│       │   ├── selection_stage.py
-│       │   ├── trade_stage.py
-│       │   └── explain_stage.py
-│       ├── engines/
-│       │   ├── engine_registry.py
-│       │   ├── finrl_engine.py
-│       │   └── legacy_rl_engine.py
-│       ├── risk/
-│       │   ├── risk_metrics.py
-│       │   ├── risk_overlay.py
-│       │   └── policy_checks.py
-│       └── RL_envs/
-│           └── wrappers/
-│               └── ollama_narrator.py
-├── templates/
-│   ├── home.html
-│   ├── narration_session.html
-│   └── register.html
-└── tests/
-    ├── test_artifact_store.py
-    ├── test_config_paths.py
-    ├── test_consumers_and_views.py
-    ├── test_data_stage.py
-    ├── test_engine_layer.py
-    ├── test_explainability_stack.py
-    ├── test_frontend_assets.py
-    ├── test_main_helpers.py
-    ├── test_narration_layer.py
-    ├── test_risk_layer.py
-    ├── test_session_models.py
-    ├── test_trading_service.py
-    └── test_train_and_selection.py
-```
+├── package-lock.json
+├── package.json
+├── pytest.ini
+├── requirements.txt
+├── runlog.txt
+├── stock_trader_website/
+│   ├── __init__.py
+│   ├── asgi.py
+│   ├── urls.py
+│   └── wsgi.py
+├── tests/
+│   ├── conftest.py
+│   ├── test_artifact_store.py
+│   ├── test_config_paths.py
+│   ├── test_consumers_and_views.py
+│   ├── test_data_stage.py
+│   ├── test_engine_layer.py
+│   ├── test_explainability_stack.py
+│   ├── test_frontend_assets.py
+│   ├── test_main_helpers.py
+│   ├── test_narration_layer.py
+│   ├── test_risk_layer.py
+│   ├── test_session_models.py
+│   ├── test_trading_service.py
+│   └── test_train_and_selection.py
+└── trader/
+    ├── __init__.py
+    ├── admin.py
+    ├── apps.py
+    ├── consumers.py
+    ├── models.py
+    ├── routing.py
+    ├── tests.py
+    ├── urls.py
+    ├── views.py
+    ├── domain/
+    │   └── session_models.py
+    ├── drl_stock_trader/
+    │   ├── algorithms.py
+    │   ├── main.py
+    │   ├── models.py
+    │   ├── preprocess.py
+    │   ├── RL_envs/
+    │   │   ├── EnvMultipleStock_Trade.py
+    │   │   ├── EnvMultipleStock_Validation.py
+    │   │   ├── EnvMultipleStocks_Train.py
+    │   │   ├── risk_wrapper.py
+    │   │   └── wrappers/
+    │   │       ├── __init__.py
+    │   │       ├── ollama_narrator.py
+    │   │       ├── risk_aware_reward.py
+    │   │       └── xai_logger.py
+    │   ├── RL_envs_portfolio/
+    │   │   └── portfolio_env.py
+    │   ├── config/
+    │   │   ├── app_config.py
+    │   │   ├── etf_universe.py
+    │   │   ├── initial_balance.txt
+    │   │   └── paths.py
+    │   ├── data/
+    │   │   ├── __init__.py
+    │   │   └── make_etf_dataset_yf.py
+    │   ├── datasets/
+    │   │   ├── done_data_etf30_covariance.csv
+    │   │   └── done_data_etf30_yf.csv
+    │   ├── engines/
+    │   │   ├── __init__.py
+    │   │   ├── engine_registry.py
+    │   │   ├── finrl_engine.py
+    │   │   └── legacy_rl_engine.py
+    │   ├── pipeline/
+    │   │   ├── __init__.py
+    │   │   ├── data_stage.py
+    │   │   ├── explain_stage.py
+    │   │   ├── selection_stage.py
+    │   │   ├── trade_stage.py
+    │   │   └── train_stage.py
+    │   ├── risk/
+    │   │   ├── __init__.py
+    │   │   ├── policy_checks.py
+    │   │   ├── risk_metrics.py
+    │   │   └── risk_overlay.py
+    │   └── xai/
+    │       ├── explanation_bundle.py
+    │       ├── explanation_lab.py
+    │       ├── lime_service.py
+    │       ├── rule_summary.py
+    │       ├── shap_service.py
+    │       └── surrogate_shap.py
+    ├── migrations/
+    │   └── __init__.py
+    ├── services/
+    │   ├── __init__.py
+    │   ├── artifact_store.py
+    │   ├── narration_chat_service.py
+    │   ├── narration_context.py
+    │   ├── narration_service.py
+    │   ├── narration_xai_adapter.py
+    │   ├── ollama_prompt_builder.py
+    │   ├── ollama_response_postprocess.py
+    │   └── trading_service.py
+    ├── static/
+    │   └── trader/
+    │       ├── main.css
+    │       └── js/
+    │           ├── narration_page.js
+    │           └── trading_page.js
+    └── templates/
+        └── trader/
+            ├── base.html
+            ├── etf_home.html
+            ├── home.html
+            ├── login.html
+            ├── narration_session.html
+            └── register.html```
 
 > Adjust paths if your local checkout uses a slightly different root layout.
 
