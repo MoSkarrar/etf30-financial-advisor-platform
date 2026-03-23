@@ -1,0 +1,169 @@
+# =========================================================
+# Python bytecode / interpreter caches
+# =========================================================
+__pycache__/
+*.py[cod]
+*$py.class
+
+# =========================================================
+# Native / compiled extensions
+# =========================================================
+*.so
+
+# =========================================================
+# Build, packaging, and distribution artifacts
+# =========================================================
+.Python
+build/
+dist/
+develop-eggs/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+pip-wheel-metadata/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# =========================================================
+# PyInstaller
+# =========================================================
+*.manifest
+*.spec
+
+# =========================================================
+# Installer / pip logs
+# =========================================================
+pip-log.txt
+pip-delete-this-directory.txt
+
+# =========================================================
+# Testing, coverage, and hypothesis caches
+# =========================================================
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+.pytest_cache/
+.hypothesis/
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+
+# =========================================================
+# Type checkers / static analysis / linters
+# =========================================================
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+.ruff_cache/
+
+# =========================================================
+# Translations
+# =========================================================
+*.mo
+*.pot
+
+# =========================================================
+# Django
+# =========================================================
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+media/
+staticfiles/
+
+# =========================================================
+# Flask / Scrapy / Celery
+# =========================================================
+instance/
+.webassets-cache
+.scrapy
+celerybeat-schedule
+celerybeat.pid
+
+# =========================================================
+# Documentation builds
+# =========================================================
+docs/_build/
+site/
+
+# =========================================================
+# Jupyter / IPython
+# =========================================================
+.ipynb_checkpoints
+profile_default/
+ipython_config.py
+
+# =========================================================
+# Python environment managers
+# =========================================================
+.python-version
+__pypackages__/
+
+# =========================================================
+# Virtual environments
+# =========================================================
+.env
+.env.*
+.venv/
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# =========================================================
+# IDE / editor / OS files
+# =========================================================
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+.spyderproject
+.spyproject
+.ropeproject/
+
+# =========================================================
+# Project-specific: generated results and model artifacts
+# =========================================================
+# Ignore generated outputs by default
+trader/drl_stock_trader/results/**
+trader/drl_stock_trader/trained_models/**
+
+# Keep folder structure in Git with .gitkeep files
+!trader/drl_stock_trader/results/
+!trader/drl_stock_trader/results/**/.gitkeep
+!trader/drl_stock_trader/trained_models/
+!trader/drl_stock_trader/trained_models/**/.gitkeep
+
+# =========================================================
+# Optional project-specific generated files
+# Uncomment if should not be tracked
+# =========================================================
+# logs/
+# tmp/
+# temp/
+# *.csv
+# *.json
+# *.png
+# *.pdf
+# *.docx
+
+# =========================================================
+# machine-specific config
+# =========================================================
+/stock_trader_website/settings.py
