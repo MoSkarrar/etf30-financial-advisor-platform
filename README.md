@@ -8,8 +8,8 @@ An explainable, risk-aware advisory platform for ETF30 portfolio analysis and mo
 
 This repository contains the current version of the **ETF30 Financial Advisor Bot**, a Django-based advisory platform that trains, evaluates, and presents reinforcement-learning portfolio decisions through a structured two-stage workflow:
 
-- **Page 1:** advisory intake, execution, run status, and results generation  
-- **Page 2:** narration/session view for human-readable advisory interpretation  
+- **Page 1:** advisory intake, execution, run status, and results generation
+- **Page 2:** narration/session view for human-readable advisory interpretation
 
 The project is focused on **ETF30-only advisory workflows**, not a broad multi-market trading interface. It combines portfolio optimisation logic, risk controls, explainability outputs, artifact persistence, and narration support inside one modular system.
 
@@ -74,6 +74,9 @@ Generated outputs are saved into organised result folders so each run can be rev
 ### 7. Automated test coverage
 The project includes a pytest suite covering key logic such as pipeline stages, services, views/consumers, artifact handling, risk logic, and narration-related behaviour.
 
+### 8. Ollama-powered page-2 narration
+The second page can answer grounded follow-up questions from persisted run artifacts using a local Ollama API connection rather than inventing responses from scratch.
+
 ---
 
 ## Technology Stack
@@ -85,16 +88,18 @@ The project includes a pytest suite covering key logic such as pipeline stages, 
 - **Pytest** for automated tests
 - **Matplotlib / result rendering utilities** for reporting assets
 - **JSON / CSV / Parquet artifact outputs** for persisted run data
+- **Ollama** for page-2 narrated advisory responses
 
 ---
 
 ## High-Level Workflow
 
-1. **User submits advisory mandate** from the web interface  
-2. **Backend validates** configuration and launches the advisory run  
-3. **Pipeline stages execute** for data preparation, training, selection, trading/evaluation, and explanation  
-4. **Artifacts are saved** under the structured `results/` directory  
-5. **Narration/session page loads** the saved advisory run for human-readable interpretation  
+1. **User submits advisory mandate** from the web interface
+2. **Backend validates** configuration and launches the advisory run
+3. **Pipeline stages execute** for data preparation, training, selection, trading/evaluation, and explanation
+4. **Artifacts are saved** under the structured `results/` directory
+5. **Narration/session page loads** the saved advisory run for human-readable interpretation
+6. **Ollama answers page-2 questions** from the saved run context
 
 ---
 
@@ -103,7 +108,6 @@ The project includes a pytest suite covering key logic such as pipeline stages, 
 ```text
 .
 ├── README.md
-├── QUICKSTART_WINDOWS.md
 ├── manage.py
 ├── trader/
 │   └── drl_stock_trader/
@@ -117,6 +121,9 @@ The project includes a pytest suite covering key logic such as pipeline stages, 
 │       ├── narration_context.py
 │       ├── narration_xai_adapter.py
 │       ├── session_models.py
+│       ├── config/
+│       │   ├── app_config.py
+│       │   └── paths.py
 │       ├── pipeline/
 │       │   ├── data_stage.py
 │       │   ├── train_stage.py
@@ -132,6 +139,8 @@ The project includes a pytest suite covering key logic such as pipeline stages, 
 │       │   ├── risk_overlay.py
 │       │   └── policy_checks.py
 │       └── RL_envs/
+│           └── wrappers/
+│               └── ollama_narrator.py
 ├── templates/
 │   ├── home.html
 │   ├── narration_session.html
@@ -185,27 +194,38 @@ Typical stored outputs include:
 
 ---
 
-## Quickstart
+## Quickstart for New Users (Windows + Anaconda)
 
+### 1. Open Anaconda Prompt
+Use **Anaconda Prompt**.
 
-### 1. Create and activate an environment
-```bash
+### 2. Go to the project folder
+```bat
+cd C:\Users\RAUL7\Downloads\fab224\fab224
+```
+
+### 3. Create and activate the environment
+```bat
 conda create -n fab224 python=3.10 -y
 conda activate fab224
 ```
 
-### 2. Install dependencies
-```bash
+### 4. Install dependencies
+```bat
 pip install -r requirements.txt
 ```
 
-### 3. Run the server
-```bash
+### 5. Configure Ollama
+Follow the **Ollama setup** section below before using page-2 narration.
+
+### 6. Run the server
+```bat
 python manage.py runserver
 ```
 
-### 4. Open the app
+### 7. Open the app
 Visit:
+
 ```text
 http://127.0.0.1:8000/
 ```
@@ -223,60 +243,55 @@ If cached ETF30 data appears outdated, rebuild the cached ETF30 dataset files an
 
 ---
 
-## Running Tests
+## Ollama Setup for New Users
 
-```bash
-python -m pytest -q
+Page-2 narration uses **Ollama** as the local model gateway. In this project, the application sends prompts to Ollama's local HTTP API and expects Ollama to be reachable before the narration page can answer questions.
+
+### What the project expects by default
+The current runtime defaults are:
+
+- **Base URL:** `http://127.0.0.1:11434`
+- **Model:** `gpt-oss:120b-cloud`
+- **Temperature:** `0.0`
+- **Top-p:** `0.95`
+- **Connect timeout:** `3` seconds
+- **Read timeout:** `180` seconds
+- **Generation budget:** `1400` tokens for both normal and chat responses
+
+These defaults come from `APP_CONFIG.ollama` in `app_config.py` and are used directly by `OllamaNarrationConfig` in `ollama_narrator.py`.
+
+### 1. Install Ollama on Windows
+The easiest official Windows installation method is the Ollama installer, and Ollama also documents a PowerShell installation command.
+
+### 2. Start Ollama
+After installing, start Ollama so the local API is available on port `11434`.
+
+### 3. Sign in if you want to use the current default model
+This project is currently configured to use:
+
+```text
+gpt-oss:120b-cloud
 ```
 
-A recent user-provided pytest result reported:
-- **42 passed**
-- **4 warnings**
-- **0 failed**
-- **0 skipped**
+Because that is a cloud model name, sign in first:
+
+```bat
+ollama signin
+```
+
+Then load the configured model at least once:
+
+```bat
+ollama run gpt-oss:120b-cloud
+```
+
+### 5. Verify Ollama before opening page-2
+You can test the local API with:
+
+```bat
+curl http://127.0.0.1:11434/api/generate -d "{\"model\":\"gpt-oss:120b-cloud\",\"prompt\":\"hello\"}"
+```
+
+If Ollama is working, you should receive a JSON response.
 
 ---
-
-
-### 1. Open Anaconda Prompt
-Use **Anaconda Prompt**, not a random system terminal.
-
-### 2. Go to the project folder
-
-
-
-### 3. Create the environment
-```bat
-conda create -n fab224 python=3.10 -y
-conda activate fab224
-```
-
-### 4. Install everything
-```bat
-pip install -r requirements.txt
-```
-
-### 5. Start the project
-```bat
-python manage.py runserver
-```
-
-### 6. Open the browser
-Go to:
-```text
-http://127.0.0.1:8000/
-```
-
-### 7. Best default date setup
-Use:
-- Train start: 2014-01-01
-- Trade start: 2015-01-01
-- Trade end: 2025-12-24
-
-### 8. Run tests
-```bat
-python -m pytest -q
-```
-
-
-
