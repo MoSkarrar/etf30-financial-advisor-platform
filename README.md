@@ -293,7 +293,7 @@ http://127.0.0.1:8000/
 
 ## Recommended Default Setup
 
-Suggested default dates for a stable first run:
+Suggested default dates for a stable long first run:
 - **Train start:** 2014-01-01
 - **Trade start:** 2015-01-01
 - **Trade end:** 2025-12-24
