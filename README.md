@@ -194,7 +194,7 @@ Typical stored outputs include:
 
 ---
 
-## Quickstart for New Users (Windows + Anaconda)
+## Quickstart (Windows + Anaconda)
 
 ### 1. Open Anaconda Prompt
 Use **Anaconda Prompt**.
